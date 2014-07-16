@@ -2,11 +2,11 @@ package com.agiledon.scala.wheel
 
 import com.agiledon.scala.wheel.Executor.{BatchCommandExecutor, CommandExecutor, QueryExecutor}
 
-sealed trait Statement
+sealed trait SqlStatement
 
-case class SqlPart(sqlClause: String) extends Statement
+case class SqlPart(sqlClause: String) extends SqlStatement
 
-class Sql(val sqlStatement: String) extends Statement with QueryExecutor with CommandExecutor with BatchCommandExecutor {
+class Sql(val sqlStatement: String) extends SqlStatement with QueryExecutor with CommandExecutor with BatchCommandExecutor {
   def this(sqls: Sql*) {
     this(sqls.map(_.sqlStatement).mkString("\n"))
   }
