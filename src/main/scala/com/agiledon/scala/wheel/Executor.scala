@@ -1,6 +1,8 @@
 package com.agiledon.scala.wheel
 
 import java.sql.{SQLException, Statement, ResultSet, Connection}
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
 
 object Executor {
 
@@ -34,6 +36,14 @@ object Executor {
       executeQuery(conn) match {
         case Right(result) => Some(converter(result))
         case Left(_) => None
+      }
+    }
+
+    //async method
+    //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
+    def queryAsync[T](implicit dataSource: DataSource, converter: ResultSet => T): Future[Option[T]] = {
+      Future {
+        query[T](dataSource, converter)
       }
     }
 
@@ -77,6 +87,14 @@ object Executor {
       executeCommand(conn) match {
         case Right(result) => result
         case Left(_) => false
+      }
+    }
+
+    //async method
+    //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
+    def executeAsync(implicit dataSource: DataSource): Future[Boolean] = {
+      Future {
+        execute(dataSource)
       }
     }
 
