@@ -33,7 +33,7 @@ object Executor {
 
     //for transaction, don't need close connection
     def query[T](implicit conn: Connection, converter: ResultSet => T): Option[T] = {
-      executeQuery(conn) match {
+      executeQuery(conn, sqlStatement) match {
         case Right(result) => Some(converter(result))
         case Left(_) => None
       }
@@ -44,28 +44,6 @@ object Executor {
     def queryAsync[T](implicit dataSource: DataSource, converter: ResultSet => T): Future[Option[T]] = {
       Future {
         query[T](dataSource, converter)
-      }
-    }
-
-    private def executeQuery(conn: Connection): Either[SQLException, ResultSet] = {
-      var stmt: Statement = null
-      var rs: ResultSet = null
-      try {
-        stmt = conn.createStatement()
-        rs = stmt.executeQuery(sqlStatement)
-        Right(rs)
-      } catch {
-        case e: SQLException => {
-          e.printStackTrace()
-          Left(e)
-        }
-      } finally {
-        try {
-          if (rs != null) rs.close()
-          if (stmt != null) stmt.close()
-        } catch {
-          case e: SQLException => e.printStackTrace()
-        }
       }
     }
   }
@@ -84,7 +62,7 @@ object Executor {
 
     //for transaction, don't need close connection
     def execute(conn: Connection): Boolean = {
-      executeCommand(conn) match {
+      executeCommand(conn, sqlStatement) match {
         case Right(result) => result
         case Left(_) => false
       }
@@ -97,25 +75,6 @@ object Executor {
         execute(dataSource)
       }
     }
-
-    private def executeCommand(conn: Connection): Either[SQLException, Boolean] = {
-      var stmt: Statement = null
-      try {
-        stmt = conn.createStatement()
-        Right(stmt.execute(sqlStatement))
-      } catch {
-        case e: SQLException => {
-          e.printStackTrace()
-          Left(e)
-        }
-      } finally {
-        try {
-          if (stmt != null) stmt.close()
-        } catch {
-          case e: SQLException => e.printStackTrace()
-        }
-      }
-    }
   }
 
   trait BatchCommandExecutor {
@@ -126,6 +85,46 @@ object Executor {
     }
   }
 
+  private def executeQuery(conn: Connection, sql: String): Either[SQLException, ResultSet] = {
+    var stmt: Statement = null
+    var rs: ResultSet = null
+    try {
+      stmt = conn.createStatement()
+      rs = stmt.executeQuery(sql)
+      Right(rs)
+    } catch {
+      case e: SQLException => {
+        e.printStackTrace()
+        Left(e)
+      }
+    } finally {
+      try {
+        if (rs != null) rs.close()
+        if (stmt != null) stmt.close()
+      } catch {
+        case e: SQLException => e.printStackTrace()
+      }
+    }
+  }
+
+  private def executeCommand(conn: Connection, sql: String): Either[SQLException, Boolean] = {
+    var stmt: Statement = null
+    try {
+      stmt = conn.createStatement()
+      Right(stmt.execute(sql))
+    } catch {
+      case e: SQLException => {
+        e.printStackTrace()
+        Left(e)
+      }
+    } finally {
+      try {
+        if (stmt != null) stmt.close()
+      } catch {
+        case e: SQLException => e.printStackTrace()
+      }
+    }
+  }
 }
 
 
