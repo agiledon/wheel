@@ -80,8 +80,16 @@ object Executor {
   trait BatchCommandExecutor {
     this: Sql with CommandExecutor =>
 
-    def batchExecute(implicit dataSource: DataSource): String = {
-      List("begin transaction", execute(dataSource), "commit").mkString("\n")
+    //for transaction
+    def batchExecute(conn: Connection): Array[Int] = {
+      executeWith(conn) {
+        stmt =>
+          stmt.addBatch(sqlStatement)
+          stmt.executeBatch()
+      } match {
+        case Right(result) => result
+        case Left(_) => Array()
+      }
     }
   }
 
@@ -89,6 +97,7 @@ object Executor {
     var stmt: Statement = null
     var rs: ResultSet = null
     try {
+      conn.setAutoCommit(false)
       stmt = conn.createStatement()
       rs = stmt.executeQuery(sql)
       Right(rs)
@@ -99,6 +108,7 @@ object Executor {
       }
     } finally {
       try {
+        conn.setAutoCommit(true)
         if (rs != null) rs.close()
         if (stmt != null) stmt.close()
       } catch {
@@ -108,10 +118,18 @@ object Executor {
   }
 
   private def executeCommand(conn: Connection, sql: String): Either[SQLException, Boolean] = {
+    executeWith(conn) {
+      stmt =>
+        stmt.execute(sql)
+    }
+  }
+
+  private def executeWith[T](conn: Connection)(f: Statement => T): Either[SQLException, T] = {
     var stmt: Statement = null
     try {
+      conn.setAutoCommit(false)
       stmt = conn.createStatement()
-      Right(stmt.execute(sql))
+      Right(f(stmt))
     } catch {
       case e: SQLException => {
         e.printStackTrace()
@@ -119,6 +137,7 @@ object Executor {
       }
     } finally {
       try {
+        conn.setAutoCommit(true)
         if (stmt != null) stmt.close()
       } catch {
         case e: SQLException => e.printStackTrace()
