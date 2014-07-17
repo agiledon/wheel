@@ -13,7 +13,7 @@ implicit val mysql = new MySqlDataSource
 Sql("select * from customer").query
 
 //execute command
-Sql("delete from customer).execute
+Sql("delete from customer").execute
 
 //execute command in transaction
 using { conn => 
