@@ -15,6 +15,9 @@ libraryDependencies ++= Seq(
   "com.novocode"        % "junit-interface"  % "0.7"          % "test->default"
 )
 
+unmanagedJars in Compile ++=
+  (file("project/lib/") * "*.jar").classpath
+
 scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",
