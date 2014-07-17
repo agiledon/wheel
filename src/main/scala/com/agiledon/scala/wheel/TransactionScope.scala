@@ -10,7 +10,7 @@ trait TransactionScope {
       f(conn)
       conn.commit()
     } catch {
-      case ex: SQLException => {
+      case ex: Exception => {
         conn.rollback()
       }
     } finally {

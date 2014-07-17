@@ -97,7 +97,6 @@ object Executor {
     var stmt: Statement = null
     var rs: ResultSet = null
     try {
-      conn.setAutoCommit(false)
       stmt = conn.createStatement()
       rs = stmt.executeQuery(sql)
       Right(rs)
@@ -108,7 +107,6 @@ object Executor {
       }
     } finally {
       try {
-        conn.setAutoCommit(true)
         if (rs != null) rs.close()
         if (stmt != null) stmt.close()
       } catch {
@@ -127,7 +125,6 @@ object Executor {
   private def executeWith[T](conn: Connection)(f: Statement => T): Either[SQLException, T] = {
     var stmt: Statement = null
     try {
-      conn.setAutoCommit(false)
       stmt = conn.createStatement()
       Right(f(stmt))
     } catch {
@@ -137,7 +134,6 @@ object Executor {
       }
     } finally {
       try {
-        conn.setAutoCommit(true)
         if (stmt != null) stmt.close()
       } catch {
         case e: SQLException => e.printStackTrace()
