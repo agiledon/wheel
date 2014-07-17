@@ -10,7 +10,7 @@ More convinient to exeucte sql command in scala language
 implicit val mysql = new MySqlDataSource
 
 //execute query
-Sql("select * from customer).query
+Sql("select * from customer”).query
 
 //execute command
 Sql("delete from customer).execute
