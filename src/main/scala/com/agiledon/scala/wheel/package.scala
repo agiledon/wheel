@@ -24,4 +24,8 @@ package object wheel {
       }
     }
   }
+
+  implicit class StringWrapper(sqlStatement: String) {
+    def execute:Boolean = new Sql(sqlStatement).execute
+  }
 }
