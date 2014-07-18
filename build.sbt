@@ -10,6 +10,7 @@ version := "1.0"
 scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
+  "com.typesafe"        % "config"           % "1.2.1",
   "ch.qos.logback"      % "logback-classic"  % "1.0.13",
   "org.scalatest"      %% "scalatest"        % "2.1.0"        % "test",
   "com.novocode"        % "junit-interface"  % "0.7"          % "test->default"
