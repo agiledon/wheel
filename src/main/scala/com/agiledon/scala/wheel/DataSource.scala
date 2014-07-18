@@ -8,6 +8,7 @@ trait DataSource {
 }
 
 object DataSource {
+  //set default data source to mysql
   implicit object MySql extends MySqlDataSource
 }
 
@@ -24,7 +25,4 @@ class MySqlDataSource extends DataSource {
         case Failure(ex) => throw ex
       }
   }
-}
-
-object DataSourcePrefs {
 }

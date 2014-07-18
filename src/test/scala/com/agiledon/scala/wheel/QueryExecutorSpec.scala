@@ -1,28 +1,33 @@
 package com.agiledon.scala.wheel
 
-import org.scalatest.{BeforeAndAfter, FlatSpec}
-import java.sql.ResultSet
+import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
+import Executor.Converter
 
-class QueryExecutorSpec extends FlatSpec with BeforeAndAfter {
+class QueryExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers {
   before {
     Sql("delete from customer").execute
     Sql("insert into customer values ('zhangyi', 'chengdu high tech zone', '13098989999')").execute
   }
 
-
-  implicit val converter: ResultSet => List[List[String]] = rs => {
-    var rows: List[List[String]] = List()
-    val columnCount = rs.getMetaData.getColumnCount
-
-    while (rs.next()) {
-      val row = (1 to columnCount).map(rs.getString).toList
-      rows = row :: rows
+  it should "query one record from customer using Sql object" in {
+    val result = Sql("select * from customer").query[List[List[String]]]
+    result match {
+      case Some(x) => {
+        x.size should be(1)
+        x.head.mkString("|") should be("zhangyi|chengdu high tech zone|13098989999")
+      }
+      case None =>
     }
-
-    rows.reverse
   }
 
-  it should "query one record from customer" in {
-//    val result = Sql("select * from customer").query()
+  it should "query one record from customer directly" in {
+    val result = "select * from customer".query[List[List[String]]]
+    result match {
+      case Some(x) => {
+        x.size should be(1)
+        x.head.mkString("|") should be("zhangyi|chengdu high tech zone|13098989999")
+      }
+      case None =>
+    }
   }
 }

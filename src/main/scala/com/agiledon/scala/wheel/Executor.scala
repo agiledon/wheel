@@ -6,42 +6,44 @@ import ExecutionContext.Implicits.global
 
 object Executor {
 
+  //default: ResultSet => List[List[String]]
+  implicit val Converter: ResultSet => List[List[String]] = source => {
+    var rows: List[List[String]] = List()
+    val columnCount = source.getMetaData.getColumnCount
+
+    while (source.next()) {
+      val row = (1 to columnCount).map(source.getString).toList
+      rows = row :: rows
+    }
+
+    rows.reverse
+  }
+
+  abstract class Converter[T] extends (ResultSet => T)
+
   trait QueryExecutor {
     this: Sql =>
-
-    //default: ResultSet => List[List[String]]
-    implicit val converter: ResultSet => List[List[String]] = rs => {
-      var rows: List[List[String]] = List()
-      val columnCount = rs.getMetaData.getColumnCount
-
-      while (rs.next()) {
-        val row = (1 to columnCount).map(rs.getString).toList
-        rows = row :: rows
-      }
-
-      rows.reverse
-    }
 
     def query[T](implicit dataSource: DataSource, converter: ResultSet => T): Option[T] = {
       val conn = dataSource.getConnection()
       try {
-        query[T](conn, converter)
+        query[T](conn)(converter)
       } finally {
         if (conn != null) conn.close()
       }
     }
 
     //for transaction, don't need close connection
-    def query[T](implicit conn: Connection, converter: ResultSet => T): Option[T] = {
-      executeQuery(conn, sqlStatement) match {
-        case Right(result) => Some(converter(result))
+    def query[T](conn: Connection)(implicit converter: ResultSet => T): Option[T] = {
+      executeQuery(conn, sqlStatement, converter) match {
+        case Right(result) => Some(result)
         case Left(_) => None
       }
     }
 
     //async method
     //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
-    def queryAsync[T](implicit dataSource: DataSource, converter: ResultSet => T): Future[Option[T]] = {
+    def asyncQuery[T](implicit dataSource: DataSource, converter: ResultSet => T): Future[Option[T]] = {
       Future {
         query[T](dataSource, converter)
       }
@@ -70,7 +72,7 @@ object Executor {
 
     //async method
     //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
-    def executeAsync(implicit dataSource: DataSource): Future[Boolean] = {
+    def asyncExecute(implicit dataSource: DataSource): Future[Boolean] = {
       Future {
         execute(dataSource)
       }
@@ -93,13 +95,13 @@ object Executor {
     }
   }
 
-  private def executeQuery(conn: Connection, sql: String): Either[SQLException, ResultSet] = {
+  private def executeQuery[T](conn: Connection, sql: String, converter: ResultSet => T): Either[SQLException, T] = {
     var stmt: Statement = null
     var rs: ResultSet = null
     try {
       stmt = conn.createStatement()
       rs = stmt.executeQuery(sql)
-      Right(rs)
+      Right(converter(rs))
     } catch {
       case e: SQLException => {
         e.printStackTrace()
