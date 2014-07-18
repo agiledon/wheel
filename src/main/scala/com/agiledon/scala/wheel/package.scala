@@ -16,7 +16,7 @@ package object wheel {
     SqlPart(s"where ${e.getPart("condition")}")
   }
 
-  implicit class PartMapUtil(paras: Parameters) {
+  implicit class PartMapUtil(val paras: Parameters) {
     def getPart(key: String): Part = {
       paras.get(key) match {
         case Some(x) => x
@@ -25,7 +25,5 @@ package object wheel {
     }
   }
 
-  implicit class StringWrapper(sqlStatement: String) {
-    def execute:Boolean = new Sql(sqlStatement).execute
-  }
+  implicit def toSql(sqlStatement: String):Sql = new Sql(sqlStatement)
 }
