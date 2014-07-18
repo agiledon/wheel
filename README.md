@@ -29,8 +29,8 @@ class YourClient extends Transaction...
 
 //execute command in transaction
 using { conn => 
-  Sql("delete from customer").execute
-  Sql("Insert into customer values(...)").execute
+  Sql("delete from customer").execute(conn)
+  Sql("Insert into customer values(...)").execute(conn)
 }
 
 //support async execution
