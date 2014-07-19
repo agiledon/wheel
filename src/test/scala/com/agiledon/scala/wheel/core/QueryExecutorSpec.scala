@@ -2,6 +2,8 @@ package com.agiledon.scala.wheel.core
 
 import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
 import Executor.Converter
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
 
 class QueryExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers {
   before {
@@ -28,6 +30,16 @@ class QueryExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers
         x.head.mkString("|") should be("zhangyi|chengdu high tech zone|13098989999")
       }
       case None =>
+    }
+  }
+
+  it should "query one record from customer async" in {
+    val result = "select * from customer".asyncQuery[List[List[String]]]
+    result.onSuccess {
+      case result => {
+        result.getOrElse(List()).size should be(1)
+        result.getOrElse(List()).head.mkString("|") should be("zhangyi|chengdu high tech zone|13098989999")
+      }
     }
   }
 }

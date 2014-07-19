@@ -1,8 +1,6 @@
 package com.agiledon.scala.wheel.syntax
 
 import com.agiledon.scala.wheel.core.Sql
-import com.agiledon.scala.wheel._
-import com.agiledon.scala.wheel.syntax.SqlPart
 
 sealed trait SqlStatement
 

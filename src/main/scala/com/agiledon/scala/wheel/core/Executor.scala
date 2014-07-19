@@ -121,7 +121,7 @@ object Executor {
   private def executeCommand(conn: Connection, sql: String): Either[SQLException, Boolean] = {
     executeWith(conn) {
       stmt =>
-        stmt.execute(sql)
+        stmt.executeUpdate(sql) > 0
     }
   }
 
