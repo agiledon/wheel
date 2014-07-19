@@ -1,4 +1,4 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.core
 
 import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
 import Executor.Converter

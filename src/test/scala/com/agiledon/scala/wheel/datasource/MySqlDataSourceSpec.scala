@@ -1,4 +1,4 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.datasource
 
 import org.scalatest.{ShouldMatchers, FlatSpec}
 

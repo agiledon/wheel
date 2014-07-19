@@ -1,8 +1,9 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.core
 
 import java.sql.{SQLException, Statement, ResultSet, Connection}
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
+import com.agiledon.scala.wheel.datasource.DataSource
 
 object Executor {
 

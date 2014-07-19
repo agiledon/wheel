@@ -1,4 +1,4 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.syntax
 
 sealed trait Part
 

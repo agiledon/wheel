@@ -1,6 +1,7 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.core
 
 import java.sql.{SQLException, Connection}
+import com.agiledon.scala.wheel.datasource.DataSource
 
 trait TransactionScope {
   def using(f: Connection => Unit)(implicit dataSource: DataSource) {

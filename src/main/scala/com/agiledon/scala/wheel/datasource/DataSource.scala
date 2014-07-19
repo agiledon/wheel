@@ -1,4 +1,4 @@
-package com.agiledon.scala.wheel
+package com.agiledon.scala.wheel.datasource
 
 import java.sql.{DriverManager, Connection}
 import scala.util.{Failure, Success, Try}

@@ -1,6 +1,6 @@
-package com.agiledon.scala
+package com.agiledon.scala.wheel
 
-package object wheel {
+package object syntax {
   type Parameters = Map[String, Part]
   type SqlPartGenerator = Parameters => SqlPart
 
@@ -24,6 +24,4 @@ package object wheel {
       }
     }
   }
-
-  implicit def toSql(sqlStatement: String):Sql = new Sql(sqlStatement)
 }
