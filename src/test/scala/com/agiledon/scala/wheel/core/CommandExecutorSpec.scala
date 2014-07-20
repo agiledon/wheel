@@ -21,6 +21,8 @@ class CommandExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatche
     future.onSuccess {
       case result => result should be(true)
     }
+
+    Thread.sleep(50)
   }
 
 }

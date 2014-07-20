@@ -26,6 +26,33 @@ object Executor extends LogSupport {
   trait QueryExecutor {
     this: Sql =>
 
+    def query1[T](implicit dataSource: DataSource): WrappedResultSet = {
+      val conn = dataSource.getConnection()
+      var stmt: Statement = null
+      var rs: ResultSet = null
+      try {
+        stmt = conn.createStatement()
+        rs = stmt.executeQuery(sqlStatement)
+        WrappedResultSet(rs)
+      } catch {
+        case e: SQLException => {
+          e.printStackTrace()
+          WrappedResultSet(null)
+        }
+      } finally {
+        try {
+          if (rs != null) rs.close()
+          if (stmt != null) stmt.close()
+          if (conn != null) conn.close()
+        } catch {
+          case e: SQLException => {
+            log.error(e.getMessage)
+            e.printStackTrace()
+          }
+        }
+      }
+    }
+
     def query[T](implicit dataSource: DataSource, converter: ResultSet => T): Option[T] = {
       val conn = dataSource.getConnection()
       try {
