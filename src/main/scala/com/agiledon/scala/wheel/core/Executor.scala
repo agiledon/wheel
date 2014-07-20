@@ -4,8 +4,9 @@ import java.sql.{SQLException, Statement, ResultSet, Connection}
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.datasource.DataSource
+import com.agiledon.scala.wheel.LogSupport
 
-object Executor {
+object Executor extends LogSupport {
 
   //default: ResultSet => List[List[String]]
   implicit val Converter: ResultSet => List[List[String]] = source => {
@@ -113,7 +114,10 @@ object Executor {
         if (rs != null) rs.close()
         if (stmt != null) stmt.close()
       } catch {
-        case e: SQLException => e.printStackTrace()
+        case e: SQLException => {
+          log.error(e.getMessage)
+          e.printStackTrace()
+        }
       }
     }
   }
@@ -133,13 +137,17 @@ object Executor {
     } catch {
       case e: SQLException => {
         e.printStackTrace()
+        log.debug(e.getMessage)
         Left(e)
       }
     } finally {
       try {
         if (stmt != null) stmt.close()
       } catch {
-        case e: SQLException => e.printStackTrace()
+        case e: SQLException => {
+          log.error(e.getMessage)
+          e.printStackTrace()
+        }
       }
     }
   }

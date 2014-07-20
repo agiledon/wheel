@@ -10,10 +10,11 @@ version := "1.0"
 scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
-  "com.typesafe"        % "config"           % "1.2.1",
-  "ch.qos.logback"      % "logback-classic"  % "1.0.13",
-  "org.scalatest"      %% "scalatest"        % "2.1.0"        % "test",
-  "com.novocode"        % "junit-interface"  % "0.7"          % "test->default"
+  "com.typesafe"        % "config"              % "1.2.1",
+  "ch.qos.logback"      % "logback-classic"     % "1.0.13",
+  "org.slf4j"           % "slf4j-api"           % "1.7.7",
+  "org.scalatest"      %% "scalatest"           % "2.1.0"        % "test",
+  "com.novocode"        % "junit-interface"     % "0.7"          % "test->default"
 )
 
 unmanagedJars in Compile ++=
