@@ -8,73 +8,31 @@ import com.agiledon.scala.wheel.LogSupport
 
 object Executor extends LogSupport {
 
-  //default: ResultSet => List[List[String]]
-  implicit val Converter: ResultSet => List[List[String]] = source => {
-    var rows: List[List[String]] = List()
-    val columnCount = source.getMetaData.getColumnCount
-
-    while (source.next()) {
-      val row = (1 to columnCount).map(source.getString).toList
-      rows = row :: rows
-    }
-
-    rows.reverse
-  }
-
-  abstract class Converter[T] extends (ResultSet => T)
-
   trait QueryExecutor {
     this: Sql =>
 
-    def query1[T](implicit dataSource: DataSource): WrappedResultSet = {
-      val conn = dataSource.getConnection()
-      var stmt: Statement = null
-      var rs: ResultSet = null
-      try {
-        stmt = conn.createStatement()
-        rs = stmt.executeQuery(sqlStatement)
-        WrappedResultSet(rs)
-      } catch {
-        case e: SQLException => {
-          e.printStackTrace()
-          WrappedResultSet(null)
-        }
-      } finally {
-        try {
-          if (rs != null) rs.close()
-          if (stmt != null) stmt.close()
-          if (conn != null) conn.close()
-        } catch {
-          case e: SQLException => {
-            log.error(e.getMessage)
-            e.printStackTrace()
-          }
-        }
-      }
-    }
-
-    def query[T](implicit dataSource: DataSource, converter: ResultSet => T): Option[T] = {
+    def query(implicit dataSource: DataSource): WrappedResultSet = {
       val conn = dataSource.getConnection()
       try {
-        query[T](conn)(converter)
+        query(conn)
       } finally {
         if (conn != null) conn.close()
       }
     }
 
     //for transaction, don't need close connection
-    def query[T](conn: Connection)(implicit converter: ResultSet => T): Option[T] = {
-      executeQuery(conn, sqlStatement, converter) match {
-        case Right(result) => Some(result)
-        case Left(_) => None
+    def query(conn: Connection): WrappedResultSet = {
+      executeQuery(conn, sqlStatement) match {
+        case Right(result) => result
+        case Left(_) => new NullWrappedResultSet()
       }
     }
 
     //async method
     //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
-    def asyncQuery[T](implicit dataSource: DataSource, converter: ResultSet => T): Future[Option[T]] = {
+    def asyncQuery(implicit dataSource: DataSource): Future[WrappedResultSet] = {
       Future {
-        query[T](dataSource, converter)
+        query(dataSource)
       }
     }
   }
@@ -124,15 +82,16 @@ object Executor extends LogSupport {
     }
   }
 
-  private def executeQuery[T](conn: Connection, sql: String, converter: ResultSet => T): Either[SQLException, T] = {
+  private def executeQuery(conn: Connection, sql: String): Either[SQLException, WrappedResultSet] = {
     var stmt: Statement = null
     var rs: ResultSet = null
     try {
       stmt = conn.createStatement()
       rs = stmt.executeQuery(sql)
-      Right(converter(rs))
+      Right(WrappedResultSet(rs))
     } catch {
       case e: SQLException => {
+        log.error(e.getMessage)
         e.printStackTrace()
         Left(e)
       }

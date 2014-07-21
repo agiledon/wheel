@@ -42,6 +42,8 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
   def take(n: Int) = table.take(n)
 }
 
+class NullWrappedResultSet extends WrappedResultSet(null)
+
 object WrappedResultSet {
   def apply(rs: ResultSet) = new WrappedResultSet(rs)
 }
