@@ -11,6 +11,6 @@ class Sql(val sqlStatement: String) extends QueryExecutor with CommandExecutor w
 
 object Sql {
   def apply(sqlStatement: String) = new Sql(sqlStatement)
-  def apply(sqls: Sql*) = new Sql(sqls.map(_.sqlStatement).mkString("\n"))
+  def apply(sqls: Sql*) = new Sql(sqls.map(_.sqlStatement).mkString(";"))
 }
 
