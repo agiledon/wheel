@@ -3,6 +3,12 @@ package com.agiledon.scala.wheel.core
 import java.sql.ResultSet
 import scala.collection.GenTraversableOnce
 
+trait Table[+A]
+
+case class DataTable(rs: ResultSet) extends Table[ResultSet]
+
+case object NullTable extends Table[Nothing]
+
 class WrappedResultSet(private[this] val rs: ResultSet) {
   private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
        "VARCHAR" -> ((no, resultSet) => resultSet.getString(no)),
