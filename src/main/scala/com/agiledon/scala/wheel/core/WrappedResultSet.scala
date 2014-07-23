@@ -3,11 +3,16 @@ package com.agiledon.scala.wheel.core
 import java.sql.ResultSet
 import scala.collection.GenTraversableOnce
 
-trait Table[+A]
+trait Table {
+//  def row(rowNo:Int) : List[Any] = this match {
+//    case DataTable(rows) => rows
+//  }
+}
 
-case class DataTable(rs: ResultSet) extends Table[ResultSet]
 
-case object NullTable extends Table[Nothing]
+case class DataTable(rows: List[List[Any]]) extends Table
+
+case object NullTable extends Table
 
 class WrappedResultSet(private[this] val rs: ResultSet) {
   private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
