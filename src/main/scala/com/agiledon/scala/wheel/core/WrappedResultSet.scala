@@ -4,21 +4,44 @@ import java.sql.ResultSet
 import scala.collection.GenTraversableOnce
 
 trait Table {
-//  def row(rowNo:Int) : List[Any] = this match {
-//    case DataTable(rows) => rows
-//  }
+  def firstRow: List[Any] = this match {
+    case DataListTable(rows) => rows.head
+    case _ => List()
+  }
+
+  def firstRowOption: Option[List[Any]] = this match {
+    case DataListTable(rows) => Some(rows.head)
+    case _ => None
+  }
+
+  def lastRow: List[Any] = this match {
+    case DataListTable(rows) => rows.last
+    case _ => List()
+  }
+
+  def lastRowOption: Option[List[Any]] = this match {
+    case DataListTable(rows) => Some(rows.last)
+    case _ => None
+  }
+
+  def foreach[B](f: List[Any] => B) {
+    this match {
+      case DataListTable(rows) => rows.foreach(f)
+      case _ =>
+    }
+  }
 }
 
 
-case class DataTable(rows: List[List[Any]]) extends Table
+case class DataListTable(rows: List[List[Any]]) extends Table
 
 case object NullTable extends Table
 
 class WrappedResultSet(private[this] val rs: ResultSet) {
   private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
-       "VARCHAR" -> ((no, resultSet) => resultSet.getString(no)),
-       "INT" -> ((no, resultSet) => resultSet.getInt(no)),
-       "BOOLEAN" -> ((no, resultSet) => resultSet.getBoolean(no))
+    "VARCHAR" -> ((no, resultSet) => resultSet.getString(no)),
+    "INT" -> ((no, resultSet) => resultSet.getInt(no)),
+    "BOOLEAN" -> ((no, resultSet) => resultSet.getBoolean(no))
   )
 
   private val table: List[Map[String, Any]] = {
