@@ -3,39 +3,44 @@ package com.agiledon.scala.wheel.core
 import java.sql.ResultSet
 import scala.collection.GenTraversableOnce
 
-trait Table {
-  def firstRow: List[Any] = this match {
-    case DataListTable(rows) => rows.head
-    case _ => List()
+trait Row[+A]
+
+case class DataRow[A](elements: A*) extends Row[A]
+
+case object NullRow extends Row[Nothing]
+
+trait Table[+A] {
+  def firstRow: Row[A] = this match {
+    case DataTable(rows) => rows.head
+    case _ => NullRow
   }
 
-  def firstRowOption: Option[List[Any]] = this match {
-    case DataListTable(rows) => Some(rows.head)
+  def firstRowOption: Option[Row[A]] = this match {
+    case DataTable(rows) => Some(rows.head)
     case _ => None
   }
 
-  def lastRow: List[Any] = this match {
-    case DataListTable(rows) => rows.last
-    case _ => List()
+  def lastRow: Row[A] = this match {
+    case DataTable(rows) => rows.last
+    case _ => NullRow
   }
 
-  def lastRowOption: Option[List[Any]] = this match {
-    case DataListTable(rows) => Some(rows.last)
+  def lastRowOption: Option[Row[A]] = this match {
+    case DataTable(rows) => Some(rows.last)
     case _ => None
   }
 
-  def foreach[B](f: List[Any] => B) {
+  def foreach[B](f: Row[A] => B) {
     this match {
-      case DataListTable(rows) => rows.foreach(f)
+      case DataTable(rows) => rows.foreach(f)
       case _ =>
     }
   }
 }
 
+case class DataTable[A](rows: List[Row[A]]) extends Table[A]
 
-case class DataListTable(rows: List[List[Any]]) extends Table
-
-case object NullTable extends Table
+case object NullTable extends Table[Nothing]
 
 class WrappedResultSet(private[this] val rs: ResultSet) {
   private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
