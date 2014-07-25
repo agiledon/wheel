@@ -82,6 +82,13 @@ trait Table {
     case DataTable(rows) => DataTable(rows.dropWhile(f))
     case _ => NullTable
   }
+
+  def length: Int = this match {
+    case DataTable(rows) => rows.length
+    case _ => 0
+  }
+
+  def count(f: Row => Boolean): Int = filter(f).length
 }
 
 case class DataTable(rows: List[Row]) extends Table

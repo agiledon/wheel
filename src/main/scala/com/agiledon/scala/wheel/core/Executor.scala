@@ -68,14 +68,20 @@ object Executor extends LogSupport {
     this: Sql with CommandExecutor =>
 
     //for transaction
-    def batchExecute(conn: Connection): Array[Int] = {
-      executeWith(conn) {
-        stmt =>
-          stmt.addBatch(sqlStatement)
-          stmt.executeBatch()
-      } match {
-        case Right(result) => result
-        case Left(_) => Array()
+    def batchExecute(implicit dataSource: DataSource): Array[Int] = {
+      val conn = dataSource.getConnection()
+      try {
+        executeWith(conn) {
+          stmt =>
+            sqlStatement.split(";")
+                        .foreach(s => stmt.addBatch(s))
+            stmt.executeBatch()
+        } match {
+          case Right(result) => result
+          case Left(_) => Array()
+        }
+      } finally {
+        if (conn != null) conn.close()
       }
     }
   }
