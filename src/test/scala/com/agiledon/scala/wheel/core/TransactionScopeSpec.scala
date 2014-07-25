@@ -1,8 +1,8 @@
 package com.agiledon.scala.wheel.core
 
-import org.scalatest.{BeforeAndAfter, FlatSpec}
+import com.agiledon.scala.wheel.IntSpec
 
-class TransactionScopeSpec extends FlatSpec with TransactionScope with BeforeAndAfter {
+class TransactionScopeSpec extends IntSpec with TransactionScope {
   before {
     Sql("delete from customer").execute
     Sql("insert into customer values ('zhangyi', 'chengdu high tech zone', '13098989999')").execute

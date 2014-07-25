@@ -1,10 +1,10 @@
 package com.agiledon.scala.wheel.core
 
-import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.core.Implicits.sql
+import com.agiledon.scala.wheel.IntSpec
 
-class CommandExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers {
+class CommandExecutorSpec extends IntSpec {
   before {
     Sql("delete from customer").execute
   }

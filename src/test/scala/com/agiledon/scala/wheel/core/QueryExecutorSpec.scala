@@ -1,11 +1,11 @@
 package com.agiledon.scala.wheel.core
 
-import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.core.Implicits.sql
+import com.agiledon.scala.wheel.IntSpec
 
-class QueryExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers {
+class QueryExecutorSpec extends IntSpec {
   before {
     Sql("delete from customer").execute
     Sql("insert into customer values ('zhangyi', 'chengdu high tech zone', '13098989999')").execute
