@@ -43,18 +43,32 @@ trait Table[+A] {
   }
 
   //row no is begin with 1
-  def row(rowNo: Int): Row[A] = this match {
-    case DataTable(rows) => rows.take(rowNo).last
-    case _ => NullRow
-  }
+  def row(rowNo: Int): Row[A] = take(rowNo).last
 
-  def first(f: Row[A] => Boolean): Option[Row[A]] = this match {
-    case DataTable(rows) => rows.find(f)
-    case _ => None
-  }
+  def first(f: Row[A] => Boolean): Option[Row[A]] = takeWhile(f).headOption
 
   def filter(f: Row[A] => Boolean): Table[A] = this match {
     case DataTable(rows) => DataTable(rows.filter(f))
+    case _ => NullTable
+  }
+
+  def take(count: Int): Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.take(count))
+    case _ => NullTable
+  }
+
+  def takeWhile(f: Row[A] => Boolean): Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.takeWhile(f))
+    case _ => NullTable
+  }
+
+  def drop(count: Int): Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.drop(count))
+    case _ => NullTable
+  }
+
+  def dropWhile(f: Row[A] => Boolean): Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.dropWhile(f))
     case _ => NullTable
   }
 }
