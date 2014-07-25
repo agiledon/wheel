@@ -10,23 +10,28 @@ case class DataRow[A](elements: A*) extends Row[A]
 case object NullRow extends Row[Nothing]
 
 trait Table[+A] {
-  def firstRow: Row[A] = this match {
+  def head: Row[A] = this match {
     case DataTable(rows) => rows.head
     case _ => NullRow
   }
 
-  def firstRowOption: Option[Row[A]] = this match {
-    case DataTable(rows) => Some(rows.head)
+  def headOption: Option[Row[A]] = this match {
+    case DataTable(rows) => rows.headOption
     case _ => None
   }
 
-  def lastRow: Row[A] = this match {
+  def tail: Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.tail)
+    case _ => NullTable
+  }
+
+  def last: Row[A] = this match {
     case DataTable(rows) => rows.last
     case _ => NullRow
   }
 
-  def lastRowOption: Option[Row[A]] = this match {
-    case DataTable(rows) => Some(rows.last)
+  def lastOption: Option[Row[A]] = this match {
+    case DataTable(rows) => lastOption
     case _ => None
   }
 
@@ -35,6 +40,22 @@ trait Table[+A] {
       case DataTable(rows) => rows.foreach(f)
       case _ =>
     }
+  }
+
+  //row no is begin with 1
+  def row(rowNo: Int): Row[A] = this match {
+    case DataTable(rows) => rows.take(rowNo).last
+    case _ => NullRow
+  }
+
+  def first(f: Row[A] => Boolean): Option[Row[A]] = this match {
+    case DataTable(rows) => rows.find(f)
+    case _ => None
+  }
+
+  def filter(f: Row[A] => Boolean): Table[A] = this match {
+    case DataTable(rows) => DataTable(rows.filter(f))
+    case _ => NullTable
   }
 }
 
