@@ -1,8 +1,8 @@
 package com.agiledon.scala.wheel.syntax
 
-import org.scalatest.{ShouldMatchers, FlatSpec}
+import com.agiledon.scala.wheel.UnitSpec
 
-class SqlGeneratorSpec extends FlatSpec with ShouldMatchers {
+class SqlGeneratorSpec extends UnitSpec {
 
   it should "generate select statement" in {
     val generators = Seq(selectPartGenerator, wherePartGenerator)

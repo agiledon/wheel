@@ -1,8 +1,8 @@
 package com.agiledon.scala.wheel.datasource
 
-import org.scalatest.{ShouldMatchers, FlatSpec}
+import com.agiledon.scala.wheel.UnitSpec
 
-class MySqlDataSourceSpec extends FlatSpec with ShouldMatchers {
+class MySqlDataSourceSpec extends UnitSpec {
   it should "load properties for mysql data source" in {
     val source = new MySqlDataSource
     source.url  should be("jdbc:mysql://localhost:3306/wheel")
