@@ -4,6 +4,7 @@ import java.sql.{SQLException, Statement, ResultSet, Connection}
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.datasource.DataSource
+import com.agiledon.scala.wheel.core.WrappedResultSet.wrapResultSet
 import com.agiledon.scala.wheel.LogSupport
 
 object Executor extends LogSupport {
@@ -11,7 +12,7 @@ object Executor extends LogSupport {
   trait QueryExecutor {
     this: Sql =>
 
-    def query(implicit dataSource: DataSource): WrappedResultSet = {
+    def query(implicit dataSource: DataSource): Table = {
       val conn = dataSource.getConnection()
       try {
         query(conn)
@@ -21,16 +22,13 @@ object Executor extends LogSupport {
     }
 
     //for transaction, don't need close connection
-    def query(conn: Connection): WrappedResultSet = {
-      executeQuery(conn, sqlStatement) match {
-        case Right(result) => result
-        case Left(_) => new NullWrappedResultSet()
-      }
+    def query(conn: Connection): Table = {
+      executeQuery(conn, sqlStatement)
     }
 
     //async method
     //suggest using onComplete or (onSuccess, onFailure) callback(s) to handle the result
-    def asyncQuery(implicit dataSource: DataSource): Future[WrappedResultSet] = {
+    def asyncQuery(implicit dataSource: DataSource): Future[Table] = {
       Future {
         query(dataSource)
       }
@@ -82,18 +80,18 @@ object Executor extends LogSupport {
     }
   }
 
-  private def executeQuery(conn: Connection, sql: String): Either[SQLException, WrappedResultSet] = {
+  private def executeQuery(conn: Connection, sql: String): Table = {
     var stmt: Statement = null
     var rs: ResultSet = null
     try {
       stmt = conn.createStatement()
       rs = stmt.executeQuery(sql)
-      Right(WrappedResultSet(rs))
+      DataTable(rs.rows)
     } catch {
       case e: SQLException => {
         log.error(e.getMessage)
         e.printStackTrace()
-        Left(e)
+        NullTable
       }
     } finally {
       try {

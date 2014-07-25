@@ -1,41 +1,52 @@
 package com.agiledon.scala.wheel.core
 
 import java.sql.ResultSet
-import scala.collection.GenTraversableOnce
 
-trait Row[+A]
+case class Cell(name: String, value: Any)
 
-case class DataRow[A](elements: A*) extends Row[A]
+trait Row {
+  def cells: List[Any] = this match {
+    case DataRow(c) => c.map(_.value)
+    case _ => Nil
+  }
 
-case object NullRow extends Row[Nothing]
+  def cell(columnName: String): Option[Any] = this match {
+    case DataRow(c) => c.find(x => x.name == columnName).map(_.value)
+    case _ => None
+  }
+}
 
-trait Table[+A] {
-  def head: Row[A] = this match {
+case class DataRow(c: List[Cell]) extends Row
+
+case object NullRow extends Row
+
+trait Table {
+  def head: Row = this match {
     case DataTable(rows) => rows.head
     case _ => NullRow
   }
 
-  def headOption: Option[Row[A]] = this match {
+  def headOption: Option[Row] = this match {
     case DataTable(rows) => rows.headOption
     case _ => None
   }
 
-  def tail: Table[A] = this match {
+  def tail: Table = this match {
     case DataTable(rows) => DataTable(rows.tail)
     case _ => NullTable
   }
 
-  def last: Row[A] = this match {
+  def last: Row = this match {
     case DataTable(rows) => rows.last
     case _ => NullRow
   }
 
-  def lastOption: Option[Row[A]] = this match {
+  def lastOption: Option[Row] = this match {
     case DataTable(rows) => lastOption
     case _ => None
   }
 
-  def foreach[B](f: Row[A] => B) {
+  def foreach[B](f: Row => B) {
     this match {
       case DataTable(rows) => rows.foreach(f)
       case _ =>
@@ -43,39 +54,39 @@ trait Table[+A] {
   }
 
   //row no is begin with 1
-  def row(rowNo: Int): Row[A] = take(rowNo).last
+  def row(rowNo: Int): Row = take(rowNo).last
 
-  def first(f: Row[A] => Boolean): Option[Row[A]] = takeWhile(f).headOption
+  def first(f: Row => Boolean): Option[Row] = takeWhile(f).headOption
 
-  def filter(f: Row[A] => Boolean): Table[A] = this match {
+  def filter(f: Row => Boolean): Table = this match {
     case DataTable(rows) => DataTable(rows.filter(f))
     case _ => NullTable
   }
 
-  def take(count: Int): Table[A] = this match {
+  def take(count: Int): Table = this match {
     case DataTable(rows) => DataTable(rows.take(count))
     case _ => NullTable
   }
 
-  def takeWhile(f: Row[A] => Boolean): Table[A] = this match {
+  def takeWhile(f: Row => Boolean): Table = this match {
     case DataTable(rows) => DataTable(rows.takeWhile(f))
     case _ => NullTable
   }
 
-  def drop(count: Int): Table[A] = this match {
+  def drop(count: Int): Table = this match {
     case DataTable(rows) => DataTable(rows.drop(count))
     case _ => NullTable
   }
 
-  def dropWhile(f: Row[A] => Boolean): Table[A] = this match {
+  def dropWhile(f: Row => Boolean): Table = this match {
     case DataTable(rows) => DataTable(rows.dropWhile(f))
     case _ => NullTable
   }
 }
 
-case class DataTable[A](rows: List[Row[A]]) extends Table[A]
+case class DataTable(rows: List[Row]) extends Table
 
-case object NullTable extends Table[Nothing]
+case object NullTable extends Table
 
 class WrappedResultSet(private[this] val rs: ResultSet) {
   private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
@@ -83,9 +94,9 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
     "INT" -> ((no, resultSet) => resultSet.getInt(no)),
     "BOOLEAN" -> ((no, resultSet) => resultSet.getBoolean(no))
   )
-
-  private val table: List[Map[String, Any]] = {
-    var rows = List[Map[String, Any]]()
+  
+  lazy val rows: List[Row] = {
+    var rows = List[Row]()
     val metadata = rs.getMetaData
     val columnCount = metadata.getColumnCount
 
@@ -97,27 +108,17 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
     }
 
     while (rs.next()) {
-      val row: Map[String, Any] = (1 to columnCount).map(x => (metadata.getColumnName(x), getColumnValue(x, rs))).toMap
+      val row: Row = DataRow((1 to columnCount).map(x => Cell(metadata.getColumnName(x), getColumnValue(x, rs))).toList)
       rows = row :: rows
     }
     rows.reverse
   }
-
-  def head: Map[String, Any] = table.head
-
-  def tail: List[Map[String, Any]] = table.tail
-
-  def foreach[B](f: Map[String, Any] => B) = table.foreach(f)
-
-  def map[B](f: Map[String, Any] => B) = table.map(f)
-
-  def flatMap[B](f: Map[String, Any] => GenTraversableOnce[B]) = table.flatMap(f)
-
-  def take(n: Int) = table.take(n)
 }
-
-class NullWrappedResultSet extends WrappedResultSet(null)
 
 object WrappedResultSet {
   def apply(rs: ResultSet) = new WrappedResultSet(rs)
+
+  implicit def wrapResultSet(rs: ResultSet) = WrappedResultSet(rs)
 }
+
+
