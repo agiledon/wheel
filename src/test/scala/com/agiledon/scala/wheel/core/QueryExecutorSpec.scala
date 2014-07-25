@@ -3,6 +3,7 @@ package com.agiledon.scala.wheel.core
 import org.scalatest.{ShouldMatchers, BeforeAndAfter, FlatSpec}
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
+import com.agiledon.scala.wheel.core.Implicits.sql
 
 class QueryExecutorSpec extends FlatSpec with BeforeAndAfter with ShouldMatchers {
   before {

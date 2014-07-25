@@ -4,8 +4,8 @@ import java.sql.{SQLException, Statement, ResultSet, Connection}
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.datasource.DataSource
-import com.agiledon.scala.wheel.core.WrappedResultSet.wrapResultSet
 import com.agiledon.scala.wheel.LogSupport
+import com.agiledon.scala.wheel.core.Implicits.resultSet
 
 object Executor extends LogSupport {
 

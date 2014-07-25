@@ -2,7 +2,7 @@ package com.agiledon.scala.wheel.core
 
 import java.sql.ResultSet
 
-case class Cell(name: String, value: Any)
+private[core] case class Cell(name: String, value: Any)
 
 trait Row {
   def cells: List[Any] = this match {
@@ -98,7 +98,6 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
   lazy val rows: List[Row] = {
     var rows = List[Row]()
     val metadata = rs.getMetaData
-    val columnCount = metadata.getColumnCount
 
     def getColumnValue(columnNo: Int, resultSet: ResultSet): Any = {
       handlers.get(metadata.getColumnTypeName(columnNo)) match {
@@ -108,7 +107,9 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
     }
 
     while (rs.next()) {
-      val row: Row = DataRow((1 to columnCount).map(x => Cell(metadata.getColumnName(x), getColumnValue(x, rs))).toList)
+      val row: Row = DataRow((1 to metadata.getColumnCount)
+        .map(x => Cell(metadata.getColumnName(x), getColumnValue(x, rs)))
+        .toList)
       rows = row :: rows
     }
     rows.reverse
@@ -117,8 +118,6 @@ class WrappedResultSet(private[this] val rs: ResultSet) {
 
 object WrappedResultSet {
   def apply(rs: ResultSet) = new WrappedResultSet(rs)
-
-  implicit def wrapResultSet(rs: ResultSet) = WrappedResultSet(rs)
 }
 
 
