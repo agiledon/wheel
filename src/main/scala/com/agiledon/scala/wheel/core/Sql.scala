@@ -4,7 +4,7 @@ import Executor.{BatchCommandExecutor, CommandExecutor, QueryExecutor}
 
 class Sql(val sqlStatement: String) extends QueryExecutor with CommandExecutor with BatchCommandExecutor {
   def this(sqls: String*) {
-    this(sqls.mkString(";"))
+    this(sqls.mkString(SQL_SPLITTER))
   }
 
 }

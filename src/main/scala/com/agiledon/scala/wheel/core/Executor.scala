@@ -73,7 +73,7 @@ object Executor extends LogSupport {
       try {
         executeWith(conn) {
           stmt =>
-            sqlStatement.split(";")
+            sqlStatement.split(SQL_SPLITTER)
                         .foreach(s => stmt.addBatch(s))
             stmt.executeBatch()
         } match {
