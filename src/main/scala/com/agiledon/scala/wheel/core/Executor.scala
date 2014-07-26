@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import com.agiledon.scala.wheel.datasource.DataSource
 import com.agiledon.scala.wheel.LogSupport
-import com.agiledon.scala.wheel.core.Implicits.resultSet
+import com.agiledon.scala.wheel.core.Implicits.WrappedResultSet
 
 object Executor extends LogSupport {
 

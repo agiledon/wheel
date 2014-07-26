@@ -95,36 +95,4 @@ case class DataTable(rows: List[Row]) extends Table
 
 case object NullTable extends Table
 
-class WrappedResultSet(private[this] val rs: ResultSet) {
-  private val handlers: Map[String, (Int, ResultSet) => Any] = Map(
-    "VARCHAR" -> ((no, resultSet) => resultSet.getString(no)),
-    "INT" -> ((no, resultSet) => resultSet.getInt(no)),
-    "BOOLEAN" -> ((no, resultSet) => resultSet.getBoolean(no))
-  )
-  
-  lazy val rows: List[Row] = {
-    var rows = List[Row]()
-    val metadata = rs.getMetaData
-
-    def getColumnValue(columnNo: Int, resultSet: ResultSet): Any = {
-      handlers.get(metadata.getColumnTypeName(columnNo)) match {
-        case Some(handler) => handler(columnNo, resultSet)
-        case None => resultSet.getString(columnNo)
-      }
-    }
-
-    while (rs.next()) {
-      val row: Row = DataRow((1 to metadata.getColumnCount)
-        .map(x => Cell(metadata.getColumnName(x), getColumnValue(x, rs)))
-        .toList)
-      rows = row :: rows
-    }
-    rows.reverse
-  }
-}
-
-object WrappedResultSet {
-  def apply(rs: ResultSet) = new WrappedResultSet(rs)
-}
-
 
