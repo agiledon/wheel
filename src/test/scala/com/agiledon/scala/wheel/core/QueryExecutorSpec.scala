@@ -35,6 +35,17 @@ class QueryExecutorSpec extends IntSpec {
     Thread.sleep(50)
   }
 
+  it should "map to entity for each row" in {
+    case class Customer(name: String, address: String, phone: String)
+
+    val result = "select * from customer".query
+    val customers = result.map(r => Customer(r.cell("name").get.toString,
+                                     r.cell("address").get.toString,
+                                     r.cell("phone").get.toString ))
+    customers.size should be(3)
+    customers.head should be(Customer("zhangyi", "chengdu high tech zone", "13098981111"))
+  }
+
   it should "generate view from query result for big data scenario" in {
     val result = "select * from customer".query
     val v = result.view

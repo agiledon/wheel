@@ -63,6 +63,11 @@ trait Table {
     case _ => NullTable
   }
 
+  def map[B](f: Row => B): List[B] = this match {
+    case DataTable(rows) => rows.map(f)
+    case _ => Nil
+  }
+
   def take(count: Int): Table = this match {
     case DataTable(rows) => DataTable(rows.take(count))
     case _ => NullTable
