@@ -24,7 +24,8 @@ object Implicits {
       }
 
       while (rs.next()) {
-        val row: Row = DataRow((1 to metadata.getColumnCount)
+        val row: Row = DataRow(
+          (1 to metadata.getColumnCount)
           .map(x => Cell(metadata.getColumnName(x), getColumnValue(x, rs)))
           .toList)
         rows = row :: rows

@@ -56,7 +56,10 @@ trait Table {
   //row no is begin with 1
   def row(rowNo: Int): Row = take(rowNo).last
 
-  def first(f: Row => Boolean): Option[Row] = takeWhile(f).headOption
+  def find(f: Row => Boolean): Option[Row] = this match {
+    case DataTable(rows) => rows.find(f)
+    case _ => None
+  }
 
   def filter(f: Row => Boolean): Table = this match {
     case DataTable(rows) => DataTable(rows.filter(f))

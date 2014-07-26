@@ -8,9 +8,9 @@ import com.agiledon.scala.wheel.IntSpec
 class QueryExecutorSpec extends IntSpec {
   before {
     Sql("delete from customer").execute
-    Sql("insert into customer values ('zhangyi', 'chengdu high tech zone', '13098981111')"
-    , "insert into customer values ('bruce zhang', 'chongqing shapingba', '13098982222')"
-    , "insert into customer values ('agiledon', 'beijing dongchen', '13098983333')"
+    Sql("insert into customer values ('zhangyi', 'chengdu high tech zone', '13098981111')",
+        "insert into customer values ('bruce zhang', 'chongqing shapingba', '13098982222')",
+        "insert into customer values ('agiledon', 'beijing dongchen', '13098983333')"
     ).batchExecute
   }
 
@@ -60,7 +60,7 @@ class QueryExecutorSpec extends IntSpec {
     result.last.cells.mkString("|") should be("agiledon|beijing dongchen|13098983333")
     result.last.cell("name").getOrElse("not found") should be("agiledon")
 
-    result.first(_.cell("phone").get == "13098982222")
-    result.filter(_.cell("name").get.toString.contains("zhang") ).length should be(2)
+    result.find(_.cell("phone").get == "13098982222")
+    result.filter(_.cell("name").get.toString.contains("zhang")).length should be(2)
   }
 }
