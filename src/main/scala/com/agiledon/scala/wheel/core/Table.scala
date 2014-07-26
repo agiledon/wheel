@@ -1,6 +1,6 @@
 package com.agiledon.scala.wheel.core
 
-import java.sql.ResultSet
+import scala.collection.SeqView
 
 private[core] case class Cell(name: String, value: Any)
 
@@ -89,6 +89,11 @@ trait Table {
   }
 
   def count(f: Row => Boolean): Int = filter(f).length
+
+  def view: SeqView[Row, List[Row]] = this match {
+    case DataTable(rows) => rows.view
+    case NullTable => Nil.view
+  }
 }
 
 case class DataTable(rows: List[Row]) extends Table

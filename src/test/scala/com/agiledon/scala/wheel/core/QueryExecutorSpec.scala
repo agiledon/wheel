@@ -35,6 +35,13 @@ class QueryExecutorSpec extends IntSpec {
     Thread.sleep(50)
   }
 
+  it should "generate view from query result for big data scenario" in {
+    val result = "select * from customer".query
+    val v = result.view
+    val phones = v.filter(_.cell("name").get.toString.contains("zhang")).map(_.cell("phone").get).mkString("|")
+    phones should be("13098981111|13098982222")
+  }
+
   def assertQueryResult(result: Table) {
     result.head.cells.mkString("|") should be("zhangyi|chengdu high tech zone|13098981111")
     result.head.cell("name").getOrElse("not found") should be("zhangyi")
