@@ -33,8 +33,9 @@ val foundedRow: Option[Row] = result.find(_.cell("phone").get == "13098982222")
 val filtered: Table = result.filter(_.cell("name").get.toString.contains("zhang"))
 ```
 
-Row means the each record of the table, and it expose two methods:
+Row means the each record of the table, and it exposes two methods:
 ```scala
+//return all column value for one row
 val eachRecord: List[Any] = result.head.cells
 
 //cell method accept column name, return Option
@@ -48,13 +49,13 @@ case class Customer(name: String, address: String, phone: String)
 val result = "select * from customer".query
 val customers = result.map(r => Customer(r.cell("name").get.toString,
                                          r.cell("address").get.toString,
-                                         r.cell("phone").get.toString ))
+                                         r.cell("phone").get.toString))
 
 val customer = customers.head
 customer.name should be("zhangyi")
 ```
 
-For querying big data from database, it provide view method:
+For querying big data from database, it provides view method:
 ``` scala
 val result = "select * from customer".query
 val v = result.view.map(r => Customer(r.cell("name").get.toString,
@@ -69,8 +70,6 @@ val v = result.view.map(r => Customer(r.cell("name").get.toString,
 ```scala
 //execute command
 Sql("delete from customer").execute
-
-"select * from customer".query
 
 "delete from customer".execute
 ```
