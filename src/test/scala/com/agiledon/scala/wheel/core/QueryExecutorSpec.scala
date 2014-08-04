@@ -49,7 +49,7 @@ class QueryExecutorSpec extends IntSpec {
   it should "generate view from query result for big data scenario" in {
     val result = "select * from customer".query
     val v = result.view
-    val phones = v.filter(_.cell("name").get.toString.contains("zhang")).map(_.cell("phone").get).mkString("|")
+    val phones = v.filter(_.cell("name").get.asInstanceOf[String].contains("zhang")).map(_.cell("phone").get).mkString("|")
     phones should be("13098981111|13098982222")
   }
 
@@ -61,6 +61,6 @@ class QueryExecutorSpec extends IntSpec {
     result.last.cell("name").getOrElse("not found") should be("agiledon")
 
     result.find(_.cell("phone").get == "13098982222")
-    result.filter(_.cell("name").get.toString.contains("zhang")).length should be(2)
+    result.filter(_.cell("name").get.asInstanceOf[String].contains("zhang")).length should be(2)
   }
 }
