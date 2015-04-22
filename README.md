@@ -130,3 +130,7 @@ If you want to run tests, you need create the table "customer":
 ```
 create table customer (name VARCHAR(20), address VARCHAR(100), phone VARCHAR(20))
 ```
+
+## Future
+
+Wheel just focus on jdbc wrapper based on Scala language.
